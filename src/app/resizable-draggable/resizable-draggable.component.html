@@ -1,0 +1,18 @@
+<div #box class="resizable-draggable" 
+    [style.z-index]="boxId*100"
+    [style.width]="width+'px'" 
+    [style.height]="height+'px'" 
+    [style.transform]="'translate3d('+ left + 'px,' + top + 'px,' + '0px)'"
+    [class.active]="status === 2 || status === 3"
+    (mouseOver)="setStatus($event, 1)"
+    (mouseOut)="setStatus($event, 0)"
+    (mousedown)="setStatus($event, 3)"
+    (window:mouseup)="setStatus($event, 0)"
+    (window:resize)="onResize($event)"
+>
+    <div *ngIf="status != 3" class="resize-action" (mousedown)="setStatus($event, 2)"></div>
+    <span *ngIf="status === 2" class="resizable-dim no-selectable-text">{{width | number:'1.0-0'}}px</span>
+    <span *ngIf="status === 2" class="resizable-dim no-selectable-text">{{height | number:'1.0-0'}}px</span>
+    <span *ngIf="status === 3" class="resizable-dim no-selectable-text">({{left}}, {{top}})</span>
+    <div class="close-action no-selectable-text" (click)="closeBoxAction(boxId)">X</div>
+</div>

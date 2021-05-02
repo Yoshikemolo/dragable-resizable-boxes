@@ -1,0 +1,33 @@
+
+<div class="button add no-selectable-text" (click)="addBox()">ADD BOX</div>
+
+<div
+  class="box-container"
+  id="box-container"
+  [style.left]="mainContainer.x+'px'"
+  [style.top]="mainContainer.y+'px'"
+  (window:resize)="onResize($event)"
+>
+  
+  <span class="box-container-dim no-selectable-text">{{mainContainer.width}}px</span>
+  <span class="box-container-dim no-selectable-text">{{mainContainer.height}}px</span>
+
+  <ng-container *ngIf = "boxes.length > 0">
+    <div *ngFor="let box of boxes; let i = index">
+      <app-resizable-draggable
+        [boxId] = "i"
+        [mainContainerX] = "mainContainer.x"
+        [mainContainerY] = "mainContainer.y"
+        [mainContainerWidth] = "mainContainer.width"
+        [mainContainerHeight] = "mainContainer.height"
+        [width]="box.width" [height]="box.height"
+        [left]="box.x"
+        [top]="box.y"
+        (closeBoxEvent)="closeBox($event)"
+        (mousedown)="selectBox(i)"
+        (click)="selectBox(i)"
+      ></app-resizable-draggable>
+    </div>
+  </ng-container>
+
+</div>
