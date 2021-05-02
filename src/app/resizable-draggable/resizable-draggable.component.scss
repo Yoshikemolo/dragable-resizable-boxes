@@ -2,15 +2,15 @@
     position: absolute;
     outline: 1px solid #999999;
     background: #FFFFFFAA;
-    &.active {
-        outline-style: dotted;
-        background-color: #0E73f80D;
-        outline: 1px solid #0E73f8;
-    }
-
     &:hover {
         cursor: all-scroll;
         outline: 1px solid #0E73f8;
+    }
+
+    &.active {
+        outline-style: dotted;
+        background-color: #0E73f80D;
+        outline: 1px dashed #0E73f8;
     }
 
     span:first-of-type {
