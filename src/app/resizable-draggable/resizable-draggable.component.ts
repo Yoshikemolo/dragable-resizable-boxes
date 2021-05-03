@@ -9,7 +9,6 @@ const enum Status {
   RESIZE = 2,
   MOVE = 3
 }
-
 @Component({
   selector: 'app-resizable-draggable',
   templateUrl: './resizable-draggable.component.html',
@@ -42,8 +41,9 @@ export class ResizableDraggableComponent implements OnInit, AfterViewInit {
   private mouseClick: {x: number, y: number, left: number, top: number};
   private offsetX  = 20;
   private offsetY = 20;
-  private minWidth = 48;
-  private minHeight = 48;
+  private minWidth = 50;
+  private minHeight = 50;
+  private grid = 5;
 
   ngOnInit() {}
 
@@ -153,7 +153,7 @@ export class ResizableDraggableComponent implements OnInit, AfterViewInit {
   private resize() {
     if (this.resizeConditionXMeet()) {
       if (this.mouse.x > this.boxPosition.left + this.offsetX && this.width >= this.minWidth)  {
-        this.width = this.mouse.x - this.left - this.mainContainerX;
+        this.width = this.toGrid(this.mouse.x - this.left - this.mainContainerX);
       } else {
         this.width = this.minWidth;
       }
@@ -163,7 +163,7 @@ export class ResizableDraggableComponent implements OnInit, AfterViewInit {
 
     if (this.resizeConditionYMeet()) {
       if (this.mouse.y > this.boxPosition.top + this.offsetY && this.height >= this.minHeight) {
-        this.height = this.mouse.y - this.top - this.mainContainerY;
+        this.height = this.toGrid(this.mouse.y - this.top - this.mainContainerY);
       } else {
         this.height = this.minHeight;
       }
@@ -188,7 +188,7 @@ export class ResizableDraggableComponent implements OnInit, AfterViewInit {
    */
   private move() {
     if (this.moveConditionXMeet() || this.unlockX()) {
-      this.left = this.mouseClick.left + (this.mouse.x - this.mouseClick.x);
+      this.left = this.toGrid(this.mouseClick.left + (this.mouse.x - this.mouseClick.x));
 
     } else {
       if (this.left < this.mainContainerWidth / 2 ) {
@@ -199,7 +199,7 @@ export class ResizableDraggableComponent implements OnInit, AfterViewInit {
     }
 
     if (this.moveConditionYMeet() || this.unlockY()) {
-      this.top = this.mouseClick.top + (this.mouse.y - this.mouseClick.y);
+      this.top = this.toGrid(this.mouseClick.top + (this.mouse.y - this.mouseClick.y));
     } else {
       if (this.top < this.mainContainerHeight / 2 ) {
         this.top = 0;
@@ -257,5 +257,10 @@ export class ResizableDraggableComponent implements OnInit, AfterViewInit {
    */
   public closeBoxAction(boxId) {
     this.closeBoxEvent.emit(boxId);
+  }
+
+
+  public toGrid(value: number): number {
+    return Math.ceil(value / this.grid) * this.grid;
   }
 }
