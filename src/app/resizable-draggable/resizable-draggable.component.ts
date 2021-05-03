@@ -97,7 +97,6 @@ export class ResizableDraggableComponent implements OnInit, AfterViewInit {
   @HostListener('window:mousemove', ['$event'])
   onMouseMove(event: MouseEvent) {
     this.mouse = { x: event.clientX, y: event.clientY };
-    event.stopPropagation();
     switch (this.status) {
       case Status.RESIZE:
         this.resize();
@@ -145,6 +144,7 @@ export class ResizableDraggableComponent implements OnInit, AfterViewInit {
         }
       }
     }
+    this.checkConstrains();
   }
 
   /**
@@ -207,8 +207,8 @@ export class ResizableDraggableComponent implements OnInit, AfterViewInit {
         this.top = this.mainContainerHeight - this.height;
       }
     }
-    this.checkMagnetic();
     this.checkConstrains();
+    this.checkMagnetic();
   }
 
   private moveConditionXMeet() {
