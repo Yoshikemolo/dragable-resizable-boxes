@@ -4,7 +4,6 @@
     [style.height]="height+'px'" 
     [style.transform]="'translate3d('+ left + 'px,' + top + 'px,' + '0px)'"
     [class.active]="status === 2 || status === 3"
-    (click)="setStatus($event, 1)"
     (mousedown)="setStatus($event, 3)"
     (mouseup)="setStatus($event, 0)"
     (window:resize)="onResize($event)"

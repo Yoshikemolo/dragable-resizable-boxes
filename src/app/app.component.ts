@@ -67,26 +67,29 @@ export class AppComponent implements OnInit {
         this.boxes[i].width = updatedBox.width;
         this.boxes[i].heigh = updatedBox.height;
         this.boxes[i].collisionBox = this.checkCollisions(updatedBox);
-
+        this.selectBox(boxToUpdate);
       }
     });
   }
 
   selectBox(selectedBox): void {
-    this.selectedBoxId = selectedBox.id;
-    const newBoxes = [];
-    let found = false;
-    this.boxes.forEach(box => {
-      if (box.id !== selectedBox.id) {
-        newBoxes.push(box);
-      } else {
-        found = true;
-      }
-    });
-    if ( found ) {
-          newBoxes.push(selectedBox);
+    if (this.selectedBoxId !== selectedBox.id) {
+      this.selectedBoxId = selectedBox.id;
+      console.log('Select ', this.selectedBoxId);
+      const newBoxes = [];
+      let zIndex = 0;
+      this.boxes.forEach((box, i) => {
+        if (box.id !== selectedBox.id) {
+          zIndex += 100;
+          box.zIndex = zIndex;
+          newBoxes.push(box);
+        }
+      });
+      zIndex += 100;
+      selectedBox.zIndex = zIndex;
+      newBoxes.push(selectedBox);
+      this.boxes = newBoxes;
     }
-    this.boxes = newBoxes;
   }
 
   closeBox(boxId: number): void {
