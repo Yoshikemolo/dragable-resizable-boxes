@@ -13,10 +13,11 @@ export class AppComponent implements OnInit {
   title = 'angular-resizable-draggable';
   marginX = 40;
   marginY = 40;
+  grid = 5;
   selectedBoxId;
   mainContainer = {
-    width: window.innerWidth - this.marginX * 2,
-    height: window.innerHeight - this.marginY * 2,
+    width: this.toGrid(window.innerWidth - this.marginX * 2),
+    height: this.toGrid(window.innerHeight - this.marginY * 2),
     x: this.marginX,
     y: this.marginY,
   };
@@ -139,5 +140,8 @@ export class AppComponent implements OnInit {
     return (topOrBottomInside && leftOrRightInside);
   }
 
+  public toGrid(value: number): number {
+    return Math.ceil(value / this.grid) * this.grid;
+  }
 }
 

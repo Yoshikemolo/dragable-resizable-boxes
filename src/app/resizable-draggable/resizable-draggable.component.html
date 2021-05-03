@@ -9,7 +9,7 @@
     (click)="setStatus($event, 1)"
     (window:resize)="onResize($event)"
 >
-    <div *ngIf="collisionBox" class="collisionId no-selectable-text">COLLIDES</div>
+    <div *ngIf="collisionBox" class="collisionId no-selectable-text">CONNECT</div>
 
     <div *ngIf="status != 3" class="resize-action" (mousedown)="setStatus($event, 2)"></div>
     <span *ngIf="status === 2" class="resizable-dim no-selectable-text">{{width | number:'1.0-0'}}px</span>
