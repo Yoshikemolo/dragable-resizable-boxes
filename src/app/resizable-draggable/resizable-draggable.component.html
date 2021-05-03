@@ -6,6 +6,7 @@
     [class.active]="status === 2 || status === 3"
     (mousedown)="setStatus($event, 3)"
     (mouseup)="setStatus($event, 0)"
+    (mouseout)="setStatus($event, 0)"
     (window:resize)="onResize($event)"
 >
     <div *ngIf="collisionBox" class="collisionId no-selectable-text">COLLIDES</div>

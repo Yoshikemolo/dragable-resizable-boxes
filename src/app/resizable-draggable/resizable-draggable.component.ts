@@ -120,6 +120,33 @@ export class ResizableDraggableComponent implements OnInit, AfterViewInit {
     this.updateBoxData();
   }
 
+  checkMagnetic(): void {
+    if ( this.collisionBox ) {
+      const centerBoxX = this.left + this.width / 2;
+      const centerBoxY = this.top + this.height / 2;
+      const centerCollisionBoxX = this.collisionBox.x + this.collisionBox.width / 2;
+      const centerCollisionBoxY = this.collisionBox.y + this.collisionBox.height / 2;
+      const offsetX = centerCollisionBoxX - centerBoxX;
+      const offsetY = centerCollisionBoxY - centerBoxY;
+      const leftOrRight = (Math.abs(offsetX) <= this.collisionBox.width);
+      const topOrBottom = (Math.abs(offsetY) <= this.collisionBox.height);
+      if (topOrBottom && Math.abs(offsetY) < Math.abs(offsetX)) {
+        if (this.left < this.collisionBox.x ) {
+            this.left = this.collisionBox.x - this.width;
+        } else {
+          this.left = this.collisionBox.x + this.collisionBox.width;
+        }
+      }
+      if (leftOrRight && Math.abs(offsetY) >= Math.abs(offsetX)) {
+        if (this.top < this.collisionBox.y ) {
+            this.top = this.collisionBox.y - this.height;
+        } else {
+          this.top = this.collisionBox.y + this.collisionBox.height;
+        }
+      }
+    }
+  }
+
   /**
    * ###########################################  RESIZE  #############################################
    */
@@ -180,6 +207,7 @@ export class ResizableDraggableComponent implements OnInit, AfterViewInit {
         this.top = this.mainContainerHeight - this.height;
       }
     }
+    this.checkMagnetic();
     this.checkConstrains();
   }
 
