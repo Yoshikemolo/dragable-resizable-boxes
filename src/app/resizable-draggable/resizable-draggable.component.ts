@@ -88,7 +88,8 @@ export class ResizableDraggableComponent implements OnInit, AfterViewInit {
       x: this.left,
       y: this.top,
       width: this.width,
-      height: this.height
+      height: this.height,
+      collisionBox: this.collisionBox
     };
     this.updateBox.emit(box);
   }

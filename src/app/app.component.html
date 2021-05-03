@@ -25,7 +25,7 @@
         [left]="box.x"
         [top]="box.y"
         [active]="box.active"
-        [collisionBox]="collisionBox"
+        [collisionBox]="box.collisionBox"
         (closeBoxEvent)="closeBox($event)"
         (updateBox)="updateBox($event)"
         (click)="selectBox(box)"

@@ -14,7 +14,6 @@ export class AppComponent implements OnInit {
   marginX = 40;
   marginY = 40;
   selectedBoxId;
-  collisionBox;
   mainContainer = {
     width: window.innerWidth - this.marginX * 2,
     height: window.innerHeight - this.marginY * 2,
@@ -53,6 +52,7 @@ export class AppComponent implements OnInit {
       height: this.defaultBoxHeight,
       x: (this.mainContainer.width - this.defaultBoxWidth) / 2,
       y: (this.mainContainer.height - this.defaultBoxHeight) / 2,
+      collisionBox: null
     };
     this.boxes.push(box);
     this.selectBox(box);
@@ -66,7 +66,8 @@ export class AppComponent implements OnInit {
         this.boxes[i].y = updatedBox.y;
         this.boxes[i].width = updatedBox.width;
         this.boxes[i].heigh = updatedBox.height;
-        this.checkCollisions(updatedBox);
+        this.boxes[i].collisionBox = this.checkCollisions(updatedBox);
+
       }
     });
   }
@@ -95,14 +96,22 @@ export class AppComponent implements OnInit {
   }
 
   checkCollisions(checkingBox) {
-    this.collisionBox = null;
-    this.boxes.forEach((box) => {
+    let collisionBox = null;
+    this.boxes.forEach((box, i) => {
+      this.boxes[i].collisionBox = null;
       if (box.id !== checkingBox.id) {
-        this.boxCollision(checkingBox, box) ? this.collisionBox = box : this.collisionBox = null;
+        if ( this.boxCollision(checkingBox, box) ) {
+          collisionBox = box;
+          this.boxes.forEach((b, j) => {
+            if (b.id === box.id) {
+              this.boxes[j].collisionBox = checkingBox;
+            }
+          });
+        }
       }
     });
-    if (this.collisionBox) {
-      return this.collisionBox;
+    if (collisionBox) {
+      return collisionBox;
     }
   }
 
