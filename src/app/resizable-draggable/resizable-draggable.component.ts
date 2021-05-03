@@ -117,6 +117,7 @@ export class ResizableDraggableComponent implements OnInit, AfterViewInit {
   checkConstrains(): void {
     this.constrainX();
     this.constrainY();
+    this.updateBoxData();
   }
 
   /**
@@ -143,7 +144,6 @@ export class ResizableDraggableComponent implements OnInit, AfterViewInit {
       this.height = this.mainContainerHeight - this.top;
     }
     this.checkConstrains();
-    this.updateBoxData();
   }
 
   private resizeConditionXMeet() {
@@ -181,7 +181,6 @@ export class ResizableDraggableComponent implements OnInit, AfterViewInit {
       }
     }
     this.checkConstrains();
-    this.updateBoxData();
   }
 
   private moveConditionXMeet() {

@@ -65,7 +65,7 @@ export class AppComponent implements OnInit {
         this.boxes[i].x = updatedBox.x;
         this.boxes[i].y = updatedBox.y;
         this.boxes[i].width = updatedBox.width;
-        this.boxes[i].heigh = updatedBox.height;
+        this.boxes[i].height = updatedBox.height;
         this.boxes[i].collisionBox = this.checkCollisions(updatedBox);
         this.selectBox(boxToUpdate);
       }
