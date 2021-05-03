@@ -75,7 +75,6 @@ export class AppComponent implements OnInit {
   selectBox(selectedBox): void {
     if (this.selectedBoxId !== selectedBox.id) {
       this.selectedBoxId = selectedBox.id;
-      console.log('Select ', this.selectedBoxId);
       const newBoxes = [];
       let zIndex = 0;
       this.boxes.forEach((box, i) => {
