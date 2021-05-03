@@ -1,3 +1,5 @@
+import { StaticSymbol } from '@angular/compiler';
+import { THIS_EXPR } from '@angular/compiler/src/output/output_ast';
 import { Component, OnInit, Input, ViewChild, ElementRef, AfterViewInit, HostListener, Output } from '@angular/core';
 import { EventEmitter } from '@angular/core';
 
@@ -16,6 +18,9 @@ const enum Status {
 export class ResizableDraggableComponent implements OnInit, AfterViewInit {
 
   @Input() boxId: number;
+  @Input() zIndex: number;
+  @Input() active: boolean;
+  @Input() collisionBox: any;
   @Input() mainContainerX: number;
   @Input() mainContainerY: number;
   @Input() mainContainerWidth: number;
@@ -25,6 +30,7 @@ export class ResizableDraggableComponent implements OnInit, AfterViewInit {
   @Input() left: number;
   @Input() top: number;
 
+  @Output() updateBox = new EventEmitter<any>();
   @Output() closeBoxEvent = new EventEmitter<number>();
 
   @ViewChild('box') public box: ElementRef;
@@ -60,31 +66,54 @@ export class ResizableDraggableComponent implements OnInit, AfterViewInit {
   }
 
   setStatus(event: MouseEvent, status: number) {
-    if (status === Status.RESIZE) {
-      event.stopPropagation();
-    } else if (status === Status.MOVE) {
-      this.mouseClick = { x: event.clientX, y: event.clientY, left: this.left, top: this.top };
-    } else {
-      this.loadBox();
+    switch (status) {
+      case Status.RESIZE:
+        event.stopPropagation();
+        break;
+      case Status.MOVE:
+        this.mouseClick = { x: event.clientX, y: event.clientY, left: this.left, top: this.top };
+        event.stopPropagation();
+        break;
+      default:
+        this.loadBox();
+        break;
     }
     this.status = status;
+  }
+
+  updateBoxData(): void {
+    const box = {
+      id: this.boxId,
+      zIndex: this.zIndex,
+      x: this.left,
+      y: this.top,
+      width: this.width,
+      height: this.height
+    };
+    this.updateBox.emit(box);
   }
 
   @HostListener('window:mousemove', ['$event'])
   onMouseMove(event: MouseEvent) {
     this.mouse = { x: event.clientX, y: event.clientY };
-
-    if (this.status === Status.RESIZE) {
-      this.resize();
-    } else if (this.status === Status.MOVE) {
-      this.move();
-    } else {
-      this.constrainX();
-      this.constrainY();
+    event.stopPropagation();
+    switch (this.status) {
+      case Status.RESIZE:
+        this.resize();
+        break;
+      case Status.MOVE:
+        this.move();
+        break;
+      default:
+        break;
     }
   }
 
   onResize(event): void {
+    this.checkConstrains();
+  }
+
+  checkConstrains(): void {
     this.constrainX();
     this.constrainY();
   }
@@ -102,7 +131,6 @@ export class ResizableDraggableComponent implements OnInit, AfterViewInit {
     } else {
       this.width = this.mainContainerWidth - this.left;
     }
-    this.constrainX();
 
     if (this.resizeConditionYMeet()) {
       if (this.mouse.y > this.boxPosition.top + this.offsetY && this.height >= this.minHeight) {
@@ -113,7 +141,8 @@ export class ResizableDraggableComponent implements OnInit, AfterViewInit {
     } else {
       this.height = this.mainContainerHeight - this.top;
     }
-    this.constrainY();
+    this.checkConstrains();
+    this.updateBoxData();
   }
 
   private resizeConditionXMeet() {
@@ -132,6 +161,7 @@ export class ResizableDraggableComponent implements OnInit, AfterViewInit {
   private move() {
     if (this.moveConditionXMeet() || this.unlockX()) {
       this.left = this.mouseClick.left + (this.mouse.x - this.mouseClick.x);
+
     } else {
       if (this.left < this.mainContainerWidth / 2 ) {
         this.left = 0;
@@ -139,7 +169,6 @@ export class ResizableDraggableComponent implements OnInit, AfterViewInit {
         this.left = this.mainContainerWidth - this.width;
       }
     }
-    this.constrainX();
 
     if (this.moveConditionYMeet() || this.unlockY()) {
       this.top = this.mouseClick.top + (this.mouse.y - this.mouseClick.y);
@@ -150,7 +179,8 @@ export class ResizableDraggableComponent implements OnInit, AfterViewInit {
         this.top = this.mainContainerHeight - this.height;
       }
     }
-    this.constrainY();
+    this.checkConstrains();
+    this.updateBoxData();
   }
 
   private moveConditionXMeet() {

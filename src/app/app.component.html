@@ -15,7 +15,8 @@
   <ng-container *ngIf = "boxes.length > 0">
     <div *ngFor="let box of boxes; let i = index">
       <app-resizable-draggable
-        [boxId] = "i"
+        [boxId] = "box.id"
+        [zIndex] = 'box.zIndex'
         [mainContainerX] = "mainContainer.x"
         [mainContainerY] = "mainContainer.y"
         [mainContainerWidth] = "mainContainer.width"
@@ -23,9 +24,11 @@
         [width]="box.width" [height]="box.height"
         [left]="box.x"
         [top]="box.y"
+        [active]="box.active"
+        [collisionBox]="collisionBox"
         (closeBoxEvent)="closeBox($event)"
-        (mousedown)="selectBox(i)"
-        (click)="selectBox(i)"
+        (updateBox)="updateBox($event)"
+        (click)="selectBox(box)"
       ></app-resizable-draggable>
     </div>
   </ng-container>

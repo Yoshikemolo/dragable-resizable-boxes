@@ -13,6 +13,8 @@ export class AppComponent implements OnInit {
   title = 'angular-resizable-draggable';
   marginX = 40;
   marginY = 40;
+  selectedBoxId;
+  collisionBox;
   mainContainer = {
     width: window.innerWidth - this.marginX * 2,
     height: window.innerHeight - this.marginY * 2,
@@ -43,28 +45,88 @@ export class AppComponent implements OnInit {
   }
 
   addBox(): void {
+    const id = this.boxes.length + 1;
     const box = {
+      id,
+      zIndex: id * 100,
       width: this.defaultBoxWidth,
       height: this.defaultBoxHeight,
       x: (this.mainContainer.width - this.defaultBoxWidth) / 2,
       y: (this.mainContainer.height - this.defaultBoxHeight) / 2,
     };
     this.boxes.push(box);
+    this.selectBox(box);
+    this.updateBox(box);
   }
 
-  selectBox(boxId: number): void {
-    const newBoxes = [];
-    const selectedBox = this.boxes[boxId];
-    this.boxes.forEach((box, i) => {
-      if (i !== boxId) {
-        newBoxes.push(box);
+  updateBox(updatedBox) {
+    this.boxes.forEach((boxToUpdate, i) => {
+      if (boxToUpdate.id === updatedBox.id) {
+        this.boxes[i].x = updatedBox.x;
+        this.boxes[i].y = updatedBox.y;
+        this.boxes[i].width = updatedBox.width;
+        this.boxes[i].heigh = updatedBox.height;
+        this.checkCollisions(updatedBox);
       }
     });
-    newBoxes.push(selectedBox);
+  }
+
+  selectBox(selectedBox): void {
+    this.selectedBoxId = selectedBox.id;
+    const newBoxes = [];
+    let found = false;
+    this.boxes.forEach(box => {
+      if (box.id !== selectedBox.id) {
+        newBoxes.push(box);
+      } else {
+        found = true;
+      }
+    });
+    if ( found ) {
+          newBoxes.push(selectedBox);
+    }
     this.boxes = newBoxes;
   }
 
   closeBox(boxId: number): void {
-    this.boxes.splice(boxId, 1);
+    this.boxes.forEach((box, i) => {
+      if (box.id === boxId) { this.boxes.splice(i, 1); }
+    });
   }
+
+  checkCollisions(checkingBox) {
+    this.collisionBox = null;
+    this.boxes.forEach((box) => {
+      if (box.id !== checkingBox.id) {
+        this.boxCollision(checkingBox, box) ? this.collisionBox = box : this.collisionBox = null;
+      }
+    });
+    if (this.collisionBox) {
+      return this.collisionBox;
+    }
+  }
+
+  public boxCollision(checkingBox, box): boolean {
+    const l1 = checkingBox.x;
+    const r1 = checkingBox.x + checkingBox.width;
+    const b1 = checkingBox.y + checkingBox.height;
+    const t1 = checkingBox.y;
+
+    const l2 = box.x;
+    const r2 = box.x + box.width;
+    const b2 = box.y + box.height;
+    const t2 = box.y;
+
+    const bottomInside = (b1 >= t2 && b1 <= b2) || (b2 >= t1 && b2 <= b1);
+    const topInside = (t1 >= t2 && t1 <= b2) || (b2 >= t1 && b2 <= b1);
+    const topOrBottomInside = ( bottomInside || bottomInside);
+
+    const leftInside = (l1 >= l2 && l1 <= r2) || (l2 >= l1 && l2 <= r1);
+    const rightInside = (r1 >= l2 && r1 <= r2) || (r2 >= l1 && r2 <= r1);
+    const leftOrRightInside = ( leftInside || rightInside);
+
+    return (topOrBottomInside && leftOrRightInside);
+  }
+
 }
+

@@ -73,3 +73,13 @@
         background: #0E73F8;
     }
 }
+
+.collisionId {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate3d(-50%, -50%, 0);
+    font-family: 'Arial';
+    font-size: 10px;
+    color: #0E73f8;
+}
