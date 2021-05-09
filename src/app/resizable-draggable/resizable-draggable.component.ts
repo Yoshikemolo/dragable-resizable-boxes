@@ -117,12 +117,10 @@ export class ResizableDraggableComponent implements OnInit, AfterViewInit {
   }
 
   onResize(event): void {
-    this.checkConstrains();
     const newWidth = document.querySelector('#box-container').getBoundingClientRect().width;
     const newHeight = document.querySelector('#box-container').getBoundingClientRect().height;
     this.xRatio = newWidth / this.initWidth; 
     this.yRatio = newHeight / this.initHeight;
-    this.updateBoxData();
     this.responsive();
     this.initSize();
   }
@@ -282,10 +280,10 @@ export class ResizableDraggableComponent implements OnInit, AfterViewInit {
   }
 
   public responsive(): void {
-    this.left = this.toGrid(this.left * this.xRatio);
-    this.width = this.toGrid(this.width * this.xRatio);
-    this.top = this.toGrid(this.top * this.yRatio);
-    this.height = this.toGrid(this.height * this.yRatio);
+    this.left = (this.left * this.xRatio);
+    this.width = (this.width * this.xRatio);
+    this.top = (this.top * this.yRatio);
+    this.height = (this.height * this.yRatio);
     this.checkConstrains();
   }
 }
