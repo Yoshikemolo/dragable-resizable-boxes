@@ -141,7 +141,7 @@ export class AppComponent implements OnInit {
   }
 
   public toGrid(value: number): number {
-    return Math.ceil(value / this.grid) * this.grid;
+    return Math.round(value / this.grid) * this.grid;
   }
 }
 

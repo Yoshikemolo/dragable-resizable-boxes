@@ -117,18 +117,22 @@ export class ResizableDraggableComponent implements OnInit, AfterViewInit {
   }
 
   onResize(event): void {
-    const newWidth = document.querySelector('#box-container').getBoundingClientRect().width;
-    const newHeight = document.querySelector('#box-container').getBoundingClientRect().height;
-    this.xRatio = newWidth / this.initWidth; 
-    this.yRatio = newHeight / this.initHeight;
-    this.responsive();
-    this.initSize();
+    setTimeout(() => {
+      const newWidth = document.querySelector('#box-container').getBoundingClientRect().width;
+      const newHeight = document.querySelector('#box-container').getBoundingClientRect().height;
+      this.xRatio = newWidth / this.initWidth; 
+      this.yRatio = newHeight / this.initHeight;
+      this.responsive();
+      this.initSize();
+      this.fitToGrid();
+    }, 100);
   }
 
   checkConstrains(): void {
     this.constrainX();
     this.constrainY();
     this.updateBoxData();
+    this.fitToGrid();
   }
 
   checkMagnetic(): void {
@@ -276,7 +280,7 @@ export class ResizableDraggableComponent implements OnInit, AfterViewInit {
    */
 
   public toGrid(value: number): number {
-    return Math.ceil(value / this.grid) * this.grid;
+    return Math.round(value / this.grid) * this.grid;
   }
 
   public responsive(): void {
@@ -285,5 +289,12 @@ export class ResizableDraggableComponent implements OnInit, AfterViewInit {
     this.top = (this.top * this.yRatio);
     this.height = (this.height * this.yRatio);
     this.checkConstrains();
+  }
+
+  public fitToGrid(): void {
+    this.left = this.toGrid(this.left);
+    this.top = this.toGrid(this.top);
+    this.width = this.toGrid(this.width);
+    this.height = this.toGrid(this.height);
   }
 }
