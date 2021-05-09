@@ -125,7 +125,7 @@ export class ResizableDraggableComponent implements OnInit, AfterViewInit {
       this.responsive();
       this.initSize();
       this.fitToGrid();
-    }, 100);
+    }, 150);
   }
 
   checkConstrains(): void {
