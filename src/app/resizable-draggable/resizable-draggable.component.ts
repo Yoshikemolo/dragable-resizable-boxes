@@ -1,5 +1,3 @@
-import { StaticSymbol } from '@angular/compiler';
-import { THIS_EXPR } from '@angular/compiler/src/output/output_ast';
 import { Component, OnInit, Input, ViewChild, ElementRef, AfterViewInit, HostListener, Output } from '@angular/core';
 import { EventEmitter } from '@angular/core';
 
@@ -44,6 +42,10 @@ export class ResizableDraggableComponent implements OnInit, AfterViewInit {
   private minWidth = 50;
   private minHeight = 50;
   private grid = 5;
+  private initWidth: number;
+  private initHeight: number;
+  private xRatio = 1;
+  private yRatio = 1;
 
   ngOnInit() {}
 
@@ -53,8 +55,13 @@ export class ResizableDraggableComponent implements OnInit, AfterViewInit {
   }
 
   private loadBox() {
-    // const {left, top} = this.box.nativeElement.getBoundingClientRect();
+    this.initSize();
     this.boxPosition = {left: this.mainContainerX, top: this.mainContainerY};
+  }
+
+  private initSize() {
+    this.initWidth = document.querySelector('#box-container').getBoundingClientRect().width;
+    this.initHeight = document.querySelector('#box-container').getBoundingClientRect().height;
   }
 
   private loadContainer() {
@@ -111,6 +118,13 @@ export class ResizableDraggableComponent implements OnInit, AfterViewInit {
 
   onResize(event): void {
     this.checkConstrains();
+    const newWidth = document.querySelector('#box-container').getBoundingClientRect().width;
+    const newHeight = document.querySelector('#box-container').getBoundingClientRect().height;
+    this.xRatio = newWidth / this.initWidth; 
+    this.yRatio = newHeight / this.initHeight;
+    this.updateBoxData();
+    this.responsive();
+    this.initSize();
   }
 
   checkConstrains(): void {
@@ -259,8 +273,19 @@ export class ResizableDraggableComponent implements OnInit, AfterViewInit {
     this.closeBoxEvent.emit(boxId);
   }
 
+  /**
+   * #############################################  UTILS  ##############################################
+   */
 
   public toGrid(value: number): number {
     return Math.ceil(value / this.grid) * this.grid;
+  }
+
+  public responsive(): void {
+    this.left = this.toGrid(this.left * this.xRatio);
+    this.width = this.toGrid(this.width * this.xRatio);
+    this.top = this.toGrid(this.top * this.yRatio);
+    this.height = this.toGrid(this.height * this.yRatio);
+    this.checkConstrains();
   }
 }
