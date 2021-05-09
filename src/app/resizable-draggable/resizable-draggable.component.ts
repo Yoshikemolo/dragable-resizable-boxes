@@ -1,5 +1,3 @@
-import { StaticSymbol } from '@angular/compiler';
-import { THIS_EXPR } from '@angular/compiler/src/output/output_ast';
 import { Component, OnInit, Input, ViewChild, ElementRef, AfterViewInit, HostListener, Output } from '@angular/core';
 import { EventEmitter } from '@angular/core';
 
@@ -7,7 +5,12 @@ const enum Status {
   OFF = 0,
   OVER = 1,
   RESIZE = 2,
-  MOVE = 3
+  MOVE = 3,
+  RESIZE_TOP = 4,
+  RESIZE_RIGHT = 5,
+  RESIZE_BOTTOM = 6,
+  RESIZE_LEFT = 7,
+  
 }
 @Component({
   selector: 'app-resizable-draggable',
@@ -38,12 +41,16 @@ export class ResizableDraggableComponent implements OnInit, AfterViewInit {
   private containerPos: { left: number, top: number, right: number, bottom: number };
   public mouse: {x: number, y: number}
   public status: Status = Status.OFF;
-  private mouseClick: {x: number, y: number, left: number, top: number};
+  private mouseClick: {x: number, y: number};
   private offsetX  = 20;
   private offsetY = 20;
   private minWidth = 50;
   private minHeight = 50;
   private grid = 5;
+  private initWidth: number;
+  private initHeight: number;
+  private xRatio = 1;
+  private yRatio = 1;
 
   ngOnInit() {}
 
@@ -53,8 +60,13 @@ export class ResizableDraggableComponent implements OnInit, AfterViewInit {
   }
 
   private loadBox() {
-    // const {left, top} = this.box.nativeElement.getBoundingClientRect();
+    this.initSize();
     this.boxPosition = {left: this.mainContainerX, top: this.mainContainerY};
+  }
+
+  private initSize() {
+    this.initWidth = document.querySelector('#box-container').getBoundingClientRect().width;
+    this.initHeight = document.querySelector('#box-container').getBoundingClientRect().height;
   }
 
   private loadContainer() {
@@ -66,12 +78,33 @@ export class ResizableDraggableComponent implements OnInit, AfterViewInit {
   }
 
   setStatus(event: MouseEvent, status: number) {
+    this.mouseClick = {
+      x: event.clientX,
+      y: event.clientY
+    };
+    this.containerPos = {
+      left: this.left,
+      top: this.top,
+      right: this.left + this.width,
+      bottom: this.top + this.height
+    };
     switch (status) {
       case Status.RESIZE:
         event.stopPropagation();
         break;
+      case Status.RESIZE_TOP:
+        event.stopPropagation();
+        break;
+      case Status.RESIZE_RIGHT:
+        event.stopPropagation();
+        break;
+      case Status.RESIZE_BOTTOM:
+        event.stopPropagation();
+        break;
+      case Status.RESIZE_LEFT:
+        event.stopPropagation();
+        break;
       case Status.MOVE:
-        this.mouseClick = { x: event.clientX, y: event.clientY, left: this.left, top: this.top };
         event.stopPropagation();
         break;
       default:
@@ -101,6 +134,18 @@ export class ResizableDraggableComponent implements OnInit, AfterViewInit {
       case Status.RESIZE:
         this.resize();
         break;
+      case Status.RESIZE_TOP:
+        this.resize();
+        break;
+      case Status.RESIZE_RIGHT:
+        this.resize();
+        break;
+      case Status.RESIZE_BOTTOM:
+        this.resize();
+      break;
+      case Status.RESIZE_LEFT:
+        this.resize();
+      break;
       case Status.MOVE:
         this.move();
         break;
@@ -110,13 +155,22 @@ export class ResizableDraggableComponent implements OnInit, AfterViewInit {
   }
 
   onResize(event): void {
-    this.checkConstrains();
+    setTimeout(() => {
+      const newWidth = document.querySelector('#box-container').getBoundingClientRect().width;
+      const newHeight = document.querySelector('#box-container').getBoundingClientRect().height;
+      this.xRatio = newWidth / this.initWidth; 
+      this.yRatio = newHeight / this.initHeight;
+      this.responsive();
+      this.initSize();
+      this.fitToGrid();
+    }, 150);
   }
 
   checkConstrains(): void {
     this.constrainX();
     this.constrainY();
     this.updateBoxData();
+    this.fitToGrid();
   }
 
   checkMagnetic(): void {
@@ -151,25 +205,56 @@ export class ResizableDraggableComponent implements OnInit, AfterViewInit {
    * ###########################################  RESIZE  #############################################
    */
   private resize() {
-    if (this.resizeConditionXMeet()) {
-      if (this.mouse.x > this.boxPosition.left + this.offsetX && this.width >= this.minWidth)  {
-        this.width = this.toGrid(this.mouse.x - this.left - this.mainContainerX);
+    if(this.status === Status.RESIZE || this.status === Status.RESIZE_RIGHT) {
+      if (this.resizeConditionXMeet()) {
+        if (this.mouse.x > this.boxPosition.left + this.offsetX && this.width >= this.minWidth)  {
+          this.width = this.toGrid(this.mouse.x - this.left - this.mainContainerX);
+        } else {
+          this.width = this.minWidth;
+        }
       } else {
-        this.width = this.minWidth;
+        this.width = this.mainContainerWidth - this.left;
       }
-    } else {
-      this.width = this.mainContainerWidth - this.left;
     }
 
-    if (this.resizeConditionYMeet()) {
-      if (this.mouse.y > this.boxPosition.top + this.offsetY && this.height >= this.minHeight) {
-        this.height = this.toGrid(this.mouse.y - this.top - this.mainContainerY);
+    if(this.status === Status.RESIZE_LEFT) {
+      if (this.moveConditionXMeet() || this.unlockX()) {
+        this.left = this.toGrid(this.containerPos.left + (this.mouse.x - this.mouseClick.x));
       } else {
-        this.height = this.minHeight;
+        if (this.left < this.mainContainerWidth / 2 ) {
+          this.left = 0;
+        } else {
+          this.left = this.mainContainerWidth - this.width;
+        }
       }
-    } else {
-      this.height = this.mainContainerHeight - this.top;
+      this.width = this.containerPos.right - this.left;
     }
+
+    if(this.status === Status.RESIZE || this.status === Status.RESIZE_BOTTOM ) {
+      if (this.resizeConditionYMeet()) {
+        if (this.mouse.y > this.boxPosition.top + this.offsetY && this.height >= this.minHeight) {
+          this.height = this.toGrid(this.mouse.y - this.top - this.mainContainerY);
+        } else {
+          this.height = this.minHeight;
+        }
+      } else {
+        this.height = this.mainContainerHeight - this.top;
+      }
+    }
+
+    if(this.status === Status.RESIZE_TOP) {
+      if (this.moveConditionYMeet() || this.unlockY()) {
+        this.top = this.toGrid(this.containerPos.top + (this.mouse.y - this.mouseClick.y));
+      } else {
+        if (this.top < this.mainContainerHeight / 2 ) {
+          this.top = 0;
+        } else {
+          this.top = this.mainContainerHeight - this.height;
+        }
+      }
+      this.height = this.containerPos.bottom - this.top;
+    }
+
     this.checkConstrains();
   }
 
@@ -188,7 +273,7 @@ export class ResizableDraggableComponent implements OnInit, AfterViewInit {
    */
   private move() {
     if (this.moveConditionXMeet() || this.unlockX()) {
-      this.left = this.toGrid(this.mouseClick.left + (this.mouse.x - this.mouseClick.x));
+      this.left = this.toGrid(this.containerPos.left + (this.mouse.x - this.mouseClick.x));
 
     } else {
       if (this.left < this.mainContainerWidth / 2 ) {
@@ -199,7 +284,7 @@ export class ResizableDraggableComponent implements OnInit, AfterViewInit {
     }
 
     if (this.moveConditionYMeet() || this.unlockY()) {
-      this.top = this.toGrid(this.mouseClick.top + (this.mouse.y - this.mouseClick.y));
+      this.top = this.toGrid(this.containerPos.top + (this.mouse.y - this.mouseClick.y));
     } else {
       if (this.top < this.mainContainerHeight / 2 ) {
         this.top = 0;
@@ -216,7 +301,7 @@ export class ResizableDraggableComponent implements OnInit, AfterViewInit {
   }
 
   private unlockX() {
-    const offsetX = this.mouse.x - this.mouseClick.left;
+    const offsetX = this.mouse.x - this.containerPos.left;
     return (
       (Math.abs(offsetX) > this.offsetX &&
       this.left >= 0 && this.left + this.width <= this.mainContainerWidth)
@@ -224,7 +309,7 @@ export class ResizableDraggableComponent implements OnInit, AfterViewInit {
   }
 
   private unlockY() {
-    const offsetY = this.mouse.y - this.mouseClick.top;
+    const offsetY = this.mouse.y - this.containerPos.top;
     return (
       (Math.abs(offsetY) > this.offsetY &&
       this.top >= 0 && this.top + this.height <= this.mainContainerHeight)
@@ -259,8 +344,26 @@ export class ResizableDraggableComponent implements OnInit, AfterViewInit {
     this.closeBoxEvent.emit(boxId);
   }
 
+  /**
+   * #############################################  UTILS  ##############################################
+   */
 
   public toGrid(value: number): number {
-    return Math.ceil(value / this.grid) * this.grid;
+    return Math.round(value / this.grid) * this.grid;
+  }
+
+  public responsive(): void {
+    this.left = (this.left * this.xRatio);
+    this.width = (this.width * this.xRatio);
+    this.top = (this.top * this.yRatio);
+    this.height = (this.height * this.yRatio);
+    this.checkConstrains();
+  }
+
+  public fitToGrid(): void {
+    this.left = this.toGrid(this.left);
+    this.top = this.toGrid(this.top);
+    this.width = this.toGrid(this.width);
+    this.height = this.toGrid(this.height);
   }
 }

@@ -12,8 +12,14 @@
     <div *ngIf="collisionBox" class="collisionId no-selectable-text">CONNECT</div>
 
     <div *ngIf="status != 3" class="resize-action" (mousedown)="setStatus($event, 2)"></div>
-    <span *ngIf="status === 2" class="resizable-dim no-selectable-text">{{width | number:'1.0-0'}}px</span>
-    <span *ngIf="status === 2" class="resizable-dim no-selectable-text">{{height | number:'1.0-0'}}px</span>
+
+    <div *ngIf="status != 3" class="resize-top-action" (mousedown)="setStatus($event, 4)"></div>
+    <div *ngIf="status != 3" class="resize-rigth-action" (mousedown)="setStatus($event, 5)"></div>
+    <div *ngIf="status != 3" class="resize-bottom-action" (mousedown)="setStatus($event, 6)"></div>
+    <div *ngIf="status != 3" class="resize-left-action" (mousedown)="setStatus($event, 7)"></div>
+
+    <span *ngIf="status === 2 || status === 5 || status === 7" class="resizable-dim width-dim no-selectable-text">{{width | number:'1.0-0'}}px</span>
+    <span *ngIf="status === 2 || status === 4 || status === 6" class="resizable-dim height-dim no-selectable-text">{{height | number:'1.0-0'}}px</span>
     <span *ngIf="status === 3" class="resizable-dim no-selectable-text">({{left}}, {{top}})</span>
     <div class="close-action no-selectable-text" (click)="closeBoxAction(boxId)">X</div>
 </div>
